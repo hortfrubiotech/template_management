@@ -1,0 +1,42 @@
+
+#Define the names and order of the greenhouse template columns. Use the cvterms for the trait columns subsituting the spaces with _
+
+input_file:
+    1 : to_db/to_db_pg29_2014.csv
+
+field_colnames:
+    1 : date
+    2 : line
+    3 : stock_sample
+    4 : value
+    5 : attribute
+    6 : season
+    7 : person
+    8 : pheno_sample
+    9 : protocol
+    10 : stock.type_id
+    11 : relationship
+    12 : description
+    13 : project
+
+
+field_colclass:
+    1 : Date
+    2 : character
+    3 : character
+    4 : numeric
+    5 : character
+    6 : numeric
+    7 : character
+    8 : character
+    9 : character
+    10 : character
+    11 : character
+    12 : character
+    13 : character
+
+table_col:
+    1 : line
+    2 : stock_sample
+    3 : value
+    4 : attribute

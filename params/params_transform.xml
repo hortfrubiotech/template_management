@@ -1,0 +1,68 @@
+files:
+  data_file : data/2010_pg.csv
+  final_file : to_db/to_db_pg_2010.csv
+
+#Define the names and order of the .csv input file columns. 
+columns:
+  1 : line
+  2 : date
+  3 : fruit_weight
+  5 : fruit_firmness
+  6 : total_soluble_solids
+  7 : color_saturation
+  8 : color_hue
+  9 : color_brightness
+  10 : color_a 
+  11 :  color_b
+  12 : long
+  13 : width
+  14 : season
+  15 : person
+  
+#Define the classes of the .csv input file columns. 
+classes:  
+  1 : character
+  2 : Date
+  3 : numeric
+  5 : numeric
+  6 : numeric
+  7 : numeric
+  8 : numeric
+  9 : numeric
+  10 : numeric
+  11 : numeric
+  12 : numeric
+  13 : numeric
+  14 : numeric
+  15 : character
+
+#Define the column names where attribute are stored
+attr_columns:
+  1 : fruit_weight
+  3 : fruit_firmness
+  4 : total_soluble_solids
+  5 : fruit_shape
+  7 : color_saturation
+  8 : color_hue
+  9 : color_brightness
+  10 : color_a 
+  11 : color_b
+
+#Define cvterms of Chado
+cvterm:
+  stock_type : sample
+  stock_rel : sample of
+  descrip : A sample of the parental line
+
+#Set the protocols corresponding to each attribute
+protocol:
+  fruit_firmness: firmness measurement
+  soluble_solids: soluble solids measurement
+  anthocyanin : anthocyanin quantification
+  color_a : colorimetry
+  color_b : colorimetry
+  color_brightness : colorimetry
+  color_hue : colorimetry
+  color_saturation : colorimetry
+
+

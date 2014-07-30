@@ -1,0 +1,275 @@
+---
+title: "Outliers values"
+author: "Hugo-pH"
+date: "07/25/2014"
+output:
+  html_document:
+    theme: journal
+    toc: yes
+runtime: shiny
+---
+
+
+## Inputs
+
+```{r, , echo=FALSE}
+library(grid)
+library(gridExtra)
+library(ggplot2)
+library("xtable")
+library(plyr)
+
+
+outliers<-function(data, col){
+
+  Q<-quantile(data[col], na.rm = T) #Get quantiles of the given values
+  max<-Q[4]+1.5*(Q[4]-Q[2]) #max and min values
+  min<-Q[2]-1.5*(Q[4]-Q[2])
+  data[which(data[col] > max | data[col] < min), ]
+
+}
+
+
+table.out.val<-function(x, cap){
+
+  
+  print(xtable(x, caption=cap),
+      booktabs=TRUE,  
+      include.rownames=T,
+      floating=FALSE,
+      tabular.environment='longtable',
+      caption.placement="top")
+  
+}
+
+levels.fun<-function(x, data){
+  levels(as.factor(data[[x]]))
+}
+
+
+```
+
+
+```{r, , echo=FALSE}
+fileInput('file1', 'Choose file to upload',
+                accept = c(
+                  'text/csv',
+                  'text/comma-separated-values',
+                  'text/tab-separated-values',
+                  'text/plain',
+                  '.csv',
+                  '.tsv'
+                ),
+          )
+      checkboxInput('header', 'Header', TRUE)
+      radioButtons('sep', 'Separator',
+                   c(Comma=',',
+                     Semicolon=';',
+                     Tab='\t'),
+                   ',')
+      radioButtons('quote', 'Quote',
+                   c(None='',
+                     'Double Quote'='"',
+                     'Single Quote'="'"),
+                   '"')
+      uiOutput("select.res_var")
+      uiOutput("select.gr_var")
+      uiOutput("select.id_col")
+     
+ bulk <- reactive({
+    # input$file1 will be NULL initially. After the user selects
+    # and uploads a file, it will be a data frame with 'name',
+    # 'size', 'type', and 'datapath' columns. The 'datapath'
+    # column will contain the local filenames where the data can
+    # be found.
+    
+    inFile <- input$file1
+    
+    if (is.null(inFile))
+      return(NULL)
+    
+    read.table(inFile$datapath, header = input$header,
+             sep = input$sep, quote = input$quote)
+  })
+output$select.res_var<-renderUI({
+    d<-bulk()
+    op<-colnames(d)
+    selectInput("value_col",
+                label="Choose the column where numeric data is stored",
+                choices = op,
+                selected = NULL
+    ) 
+  })
+output$select.gr_var<-renderUI({
+    d<-bulk()
+    op<-colnames(d)
+    selectInput("gr_col",
+                label="Choose the grouping column",
+                choices = op,
+                selected = NULL
+    ) 
+  })
+output$select.id_col<-renderUI({
+    d<-bulk()
+    op<-colnames(d)
+    selectInput("id_col",
+                label="Choose the columns to identify the rows",
+                choices = op,
+                selected = NULL,
+                multiple = TRUE
+    ) 
+  })  
+
+
+
+data<-reactive({
+inFile <- input$id_col
+    
+    if (is.null(inFile))
+      return(NULL)
+
+val<-input$value_col
+gr<-input$gr_col
+b<-bulk()
+v<-which(colnames(b)==val)
+g<-which(colnames(b)==gr)
+# colnames(b)[v]<-"value"  
+colnames(b)[g]<-"group"  
+b[, v]<-as.numeric(b[, v])
+# b[, g]<-as.character(b[, g])
+b
+
+})
+
+col.table<-reactive({
+  c(input$id_col, "group", "value")
+})
+   uiOutput("select.an_col")
+
+
+outliers.ls<-reactive({
+data<-data()
+dlply(data, .(group), outliers, col="value")
+})
+
+mean.sd<-reactive({
+  data<-data()
+  dlply(data, .(group), summarise, mean=mean(value, na.rm = T), sd=sd(value, na.rm = T))
+})
+data.ls<-reactive({
+  data<-data()
+  dlply(data, .(group))
+                 })
+
+# comp.ls<-reactive({
+# data<-data()
+# outliers.ls<-dlply(data, .(group), outliers, col="value")
+# 
+# 
+# mean.sd<-dlply(data, .(group), summarise, mean=mean(value, na.rm = T), sd=sd(value, na.rm = T))
+# 
+# data.ls<-dlply(data, .(group))
+# 
+# out<-list(outliers.ls, mean.sd, data.ls)
+# })
+# renderPrint({
+#   x<-mean.sd()
+#   print(names(x))
+# })
+output$select.an_col<-renderUI({
+    d<-outliers.ls()
+    op<-names(d)
+    selectInput("an_col",
+                label="Select an attribute to perform the analysis",
+                choices = op,
+                selected = NULL
+    ) 
+    })
+```
+
+###Mean and standard deviation of the selected subset:
+```{r, echo=FALSE}
+renderTable({
+  data<-mean.sd()
+  col.table<-col.table()
+  head(data[[input$an_col]])
+  
+  })
+```
+
+
+### Outliers values:
+```{r, echo=FALSE}
+renderTable({
+  data<-outliers.ls()
+  col.table<-col.table()
+  head(data[[input$an_col]][, c(col.table)])
+  
+  })
+```
+
+
+###Graphic analysis
+```{r, echo=FALSE}
+
+renderPlot({
+data.ls<-data.ls()
+  data<-data.ls[[input$an_col]]
+
+
+b1<- ggplot(data, aes(group, value)) +
+    geom_boxplot()
+
+b2<-ggplot(data, aes(group, value)) + 
+  geom_jitter(alpha=I(1/2), aes(color = group)) +
+  theme(legend.position = "none")
+
+b3<-ggplot(data, aes(x=value)) + 
+ stat_density(aes(ymax = ..density..,  ymin = -..density..,
+               fill = group, color = group),
+               geom = "ribbon", position = "identity") +
+               coord_flip() +
+               theme(legend.position = "none")
+
+g.plot<-grid.arrange(b1, b2, b3, nrow=1)
+})
+```
+
+###Character string analysis
+```{r, echo=FALSE}
+ uiOutput("select.extra_col")
+output$select.extra_col<-renderUI({
+    d<-bulk()
+    op<-colnames(d)
+    selectInput("extra_col",
+                label="Choose the levels columns",
+                choices = op,
+                selected = NULL
+    ) 
+  })  
+
+
+
+```
+Distinct values found in selected column:
+```{r, echo=FALSE}
+renderTable({
+  col<-input$extra_col
+
+levels<-levels.fun(col, data())
+  as.data.frame(levels)
+})
+```
+
+
+###NA values
+Rows containing NA values:
+```{r, echo=FALSE}
+renderTable({
+data<-bulk()
+  row.na<- (unlist (lapply (data, function (x) which (is.na (x)))))
+data[row.na, ]
+
+})
+```
+

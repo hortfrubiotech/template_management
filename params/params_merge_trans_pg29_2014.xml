@@ -1,0 +1,99 @@
+#Define which file are processed and their location. The form is "name of the line" : "path to file"
+stock_files:  
+
+  pg29 : data/2014/data-2014-pg29.csv
+  control-2014 : data/2014/data-2014-chandler.csv
+
+#Define the path to the color file and the output file
+files:
+    color_file : data/2014/color_2014_candela.csv
+    out_file : to_db/to_db_pg_2014.csv
+
+#Define the names and order of the greenhouse template columns. Use the cvterms for the trait columns subsituting the spaces with _
+field_colnames:
+    1 : date
+    2 : person
+    3 : line
+    4 : fruit_weight
+    5 : set
+    6 : shot
+    7 : long
+    8 : width
+    9 : fruit_firmness
+    10 : total_soluble_solids
+    11 : apariencia
+
+#Define the classes of the columns named in field_colnames
+field_colclass:
+    1 : Date
+    2 : character
+    3 : character
+    4 : numeric
+    5 : numeric
+    6 : numeric
+    7 : numeric
+    8 : numeric
+    9 : numeric
+    10 : numeric
+    11 : numeric
+
+#Set the names and order of the color file columns
+color_colnames:
+    1 : set
+    2 : nombre_datos
+    3 : shot
+    4 : color_b
+    5 : color_brightness
+    6 : color_a
+    7 : color_saturation
+    8 : color_hue
+
+#Set the classes of the color file columns
+color_colclass:
+    1 : numeric
+    2 : character
+    3 : numeric
+    4 : numeric
+    5 : numeric
+    6 : numeric
+    7 : numeric
+    8 : numeric
+    
+#Set which columns needs to be remove from the color file
+removeCols:
+    1 : nombre_datos
+
+#Set which columns contains the set and shot data to merge color and field data
+merg:
+    1 : set
+    2 : shot
+
+#Define cvterms of Chado
+cvterm:
+  stock_type : sample
+  stock_rel : sample of
+  descrip : A sample of the parental line
+  project: PG transformation
+
+#Set the protocols corresponding to each attribute
+protocol:
+  fruit_firmness: firmness measurement
+  soluble_solids: soluble solids measurement
+  anthocyanin : anthocyanin quantification
+  color_a : colorimetry
+  color_b : colorimetry
+  color_brightness : colorimetry
+  color_hue : colorimetry
+  color_saturation : colorimetry
+
+#Define the column names where attribute are stored
+attr_columns:
+  1 : fruit_weight
+  3 : fruit_firmness
+  4 : total_soluble_solids
+  5 : fruit_shape
+  7 : color_saturation
+  8 : color_hue
+  9 : color_brightness
+  10 : color_a 
+  11 : color_b

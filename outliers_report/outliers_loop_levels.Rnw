@@ -1,0 +1,7 @@
+\subsection{\Sexpr{i} column}
+Distinct values found in \Sexpr{i} column:
+\vspace{1em}
+<<results='asis', echo=FALSE>>=
+d<-extra.ls[[i]]
+kable(d)
+@

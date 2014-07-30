@@ -1,0 +1,141 @@
+\documentclass[10pt]{article}
+
+
+<<function, results="asis", echo=FALSE>>=
+
+#Get the data from the outvals.data file
+# dbdata<-get(load("outvals.data"))
+library(grid)
+library(gridExtra)
+library(ggplot2)
+library("xtable")
+library(plyr)
+library("yaml") # http://stackoverflow.com/questions/5272846/how-to-get-parameters-from-config-file-in-r-script
+#Read the file names from an xml file
+params<-yaml.load_file("../params/params_outliers_2.xml")
+colclass<-unlist(params[["field_colclass"]])
+colnames<-unlist(params[["field_colnames"]])
+filename<-unlist(params[["input_file"]])
+data<- read.table(file=filename, header = T, sep="\t", 
+                  colClasses = colclass, col.names = colnames, blank.lines.skip=TRUE)
+
+value_col<-unlist(params[["value_col"]])
+group_col<-unlist(params[["group_col"]])
+v<-which(colnames(data)==value_col)
+g<-which(colnames(data)==group_col)
+colnames(data)[v]<-"value"  
+colnames(data)[g]<-"group"  
+
+author<-unlist(params[["author"]])
+report<-unlist(params[["report"]])
+
+col.table<-c(unlist(params[["table_col"]]), "group", "value")
+
+outliers<-function(data, col){
+
+  Q<-quantile(data[col], na.rm = T) #Get quantiles of the given values
+  max<-Q[4]+1.5*(Q[4]-Q[2]) #max and min values
+  min<-Q[2]-1.5*(Q[4]-Q[2])
+  data[which(data[col] > max | data[col] < min), ]
+
+}
+
+
+table.out.val<-function(x, cap){
+
+  
+  print(xtable(x, caption=cap),
+      booktabs=TRUE,  
+      include.rownames=T,
+      floating=FALSE,
+      tabular.environment='longtable',
+      caption.placement="top")
+  
+}
+
+levels.fun<-function(x, data){
+  levels(as.factor(data[[x]]))
+}
+
+@
+
+\usepackage{float} \restylefloat{table}
+\usepackage{cite}
+\usepackage{color}
+\usepackage{indentfirst}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage[labelfont=bf,labelsep=period]{caption}
+\usepackage{gensymb}
+\begin{document}
+
+
+\title{Outliers values - \Sexpr{report}}
+\author{\Sexpr{author}}
+\maketitle
+
+
+\section{Outline}
+We have analized the next attributes in the 'value' column:
+\vspace{1em}
+<<col_outline, results='asis', echo=FALSE>>=
+#Get the names of groups
+col_an<-levels(as.factor(data$group))
+
+# Print the name of the attributes
+kable(col_an)
+@
+\pagebreak
+
+\section{Outliers values}
+\vspace{1em}
+<<run-all, include=FALSE, echo=FALSE>>=
+ 
+#Get outliers values grouping by attributes. The output is a list of df containing the outlers values for each attribute
+
+outliers.ls<-dlply(data, .(group), outliers, col="value")
+
+mean.sd<-dlply(data, .(group), summarise, mean=mean(value, na.rm = T), sd=sd(value, na.rm = T))
+
+
+data.ls<-dlply(data, .(group))
+
+out = NULL
+for (i in names(outliers.ls) ){
+  out = c(out, knit_child("outliers_loop_plots.Rnw"))
+  # names(outliers.ls) 
+}
+@
+\Sexpr{paste(out, collapse = '\n')}
+\pagebreak
+
+\section{Character columns}
+<<test, include=FALSE, echo=FALSE>>=
+
+
+extra_col<-params[["extra_col"]]
+
+
+
+extra.ls<-lapply(extra_col, levels.fun, data=data)
+
+levels = NULL
+for (i in names(extra.ls) ){
+  levels = c(levels, knit_child("outliers_loop_levels.Rnw"))
+    }
+@
+\Sexpr{paste(levels, collapse = '\n')}
+\pagebreak
+
+\section{Missing values}
+The next rows contain missing values. 
+<<results='asis', echo=FALSE, warning=FALSE>>=
+
+row.na<-unique (unlist (lapply (data, function (x) which (is.na (x)))))
+data.na<-data[row.na, ]
+
+df<-data.na[, c(col.table)]
+caption.na<-("Rows containg NA values")
+table.out.val(df, cap= caption.na)
+@
+\end{document}

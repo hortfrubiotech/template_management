@@ -1,0 +1,59 @@
+#Path to the input path
+input_file:
+  1 : ../to_db/to_db_pg29_2014.csv
+
+#Author name:
+author:
+  1 : Hugo Pineda
+
+#Report name:
+report:
+  1 : pg29(2014)
+
+#Define the names and order of the input file columns. 
+field_colnames:
+  1 : date
+  2 : line
+  3 : stock_sample
+  4 : value
+  5 : attribute
+  6 : season
+  7 : person
+  8 : pheno_sample
+  9 : protocol
+  10 : stock.type_id
+  11 : relationship
+  12 : description
+  13 : project
+
+#Define the classes of the input file columns.
+field_colclass:
+  1 : Date
+  2 : character
+  3 : character
+  4 : numeric
+  5 : character
+  6 : numeric
+  7 : character
+  8 : character
+  9 : character
+  10 : character
+  11 : character
+  12 : character
+  13 : character
+
+#Select the columns which are used as indentifiers in the outliers tables
+table_col:
+  1 : line
+  2 : stock_sample
+#Define the column containing the numeric values
+value_col:
+  1 : value
+#Define the column containing the groups of the numeric values.
+group_col:
+  1 : attribute
+#Define the columns analyzed for distinct levels. Use the following struture "column name" : "colum name"
+extra_col:
+  season : season
+  person : person
+  line : line

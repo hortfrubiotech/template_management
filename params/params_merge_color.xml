@@ -1,0 +1,74 @@
+#Define which file are processed and their location. The form is "name of the line" : "path to file"
+stock_files:  
+    29bp9 : data/data-2014-29bp9.csv
+    29bp15 : data/data-2014-29bp15.csv
+    29bp16 : data/data-2014-29bp16.csv
+    bp5 : data/data-2014-bp5.csv
+    bp7 : data/data-2014-bp7.csv
+    bp8 : data/data-2014-bp8.csv
+    chandler : data/data-2014-chandler.csv
+    pg29 : data/data-2014-pg29.csv
+
+#Define the path to the color file and the output file
+files:
+    color_file : data/color_2014_candela.csv
+    out_file : 29bp-2013-completo.xls
+
+#Define the names and order of the greenhouse template columns. 
+field_colnames:
+    1 : fecha
+    2 : persona
+    3 : linea
+    4 : peso
+    5 : tanda
+    6 : disparo
+    7 : largo
+    8 : ancho
+    9 : firmeza
+    10 : solidos_solubles
+    11 : apariencia
+
+#Define the classes of the columns named in field_colnames
+field_colclass:
+    1 : Date
+    2 : character
+    3 : character
+    4 : numeric
+    5 : numeric
+    6 : numeric
+    7 : numeric
+    8 : numeric
+    9 : numeric
+    10 : numeric
+    11 : numeric
+
+#Set the names and order of the color file columns
+color_colnames:
+    1 : tanda
+    2 : nombre
+    3 : disparo
+    4 : color_b
+    5 : color_L
+    6 : color_a
+    7 : color_C
+    8 : color_h
+
+#Set the classes of the color file columns
+color_colclass:
+    1 : numeric
+    2: character
+    3 : numeric
+    4 : numeric
+    5 : numeric
+    6 : numeric
+    7 : numeric
+    8 : numeric
+
+#Set which columns needs to be remove from the color file
+removeCols:
+    1 : nombre
+
+#Set which columns contains the set and shot data to merge color and field data
+merg:
+    1 : tanda
+    2 : disparo

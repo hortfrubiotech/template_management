@@ -1,0 +1,69 @@
+\subsection{\Sexpr{i} column}
+
+Here is the analysis performed over the \Sexpr{i} column and the subsequent outliers values found. 
+\vspace{2em}
+<<results='asis', echo=FALSE, warning=FALSE>>=
+
+
+  
+  out.data<-outliers.ls[[i]][, c(col.table)]
+  
+
+  caption.msd<-paste("Mean and sd of", i, "column") # Create the tag for the table
+  
+  table.out.val(mean.sd[[i]], cap=caption.msd)#Print out-val table
+
+
+  if(nrow(out.data) < 1){
+    print("No outliers values found for this trait.")
+  }else{
+  caption.val<-paste("outliers values found in", i, "column")
+    
+  table.out.val(out.data, cap= caption.val)#Print mean-sd table
+    
+  }
+@
+\pagebreak
+\subsubsection{Plots of \Sexpr{i} column}
+
+\begin{figure}[H]%The [H] option is really important to avoid floating plots
+<<results='asis', ,fig.keep='high', fig.align='center', fig.height=3, fig.show='asis', echo=FALSE, cache=FALSE, warning=FALSE>>=
+data<-data.ls[[i]]
+
+
+b1<- ggplot(data, aes(group, value)) +
+    geom_boxplot()
+
+b2<-ggplot(data, aes(group, value)) + 
+  geom_jitter(alpha=I(1/4), aes(color = group)) +
+  theme(legend.position = "none")
+
+b3<-ggplot(data, aes(x=value)) + 
+ stat_density(aes(ymax = ..density..,  ymin = -..density..,
+               fill = group, color = group),
+               geom = "ribbon", position = "identity") +
+               coord_flip() +
+               theme(legend.position = "none")
+
+g.plot<-grid.arrange(b1, b2, b3, nrow=1)
+
+              
+@
+\caption{Graphic representation of \Sexpr{i} outliers values}
+\end{figure}
+
+\begin{figure}[H]%The [H] option is really important to avoid floating plots
+<<results='asis', fig.align='center', fig.height=3, fig.show='asis', echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE>>=
+data<-data.ls[[i]]
+data<-na.omit(data)
+range.value<- (range(data$value)[2] - range(data$value)[1])/50 
+ggplot(data, aes(x = value)) +
+    geom_histogram(aes(x=value, y=..density.., fill = ..density..), binwidth=range.value) + #use density instead of counts, nicer view
+    geom_density() +
+    scale_fill_gradient("Count", low = "green", high = "red")
+@
+\caption{Histogram of \Sexpr{i} values}
+\end{figure}
+
+\pagebreak
+
